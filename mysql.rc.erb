@@ -1,0 +1,5 @@
+check process mysqld matching "mysqld"
+    start program = "/usr/sbin/service mysqld start" with timeout 90 seconds
+    stop program  = "/usr/sbin/service mysqld stop"
+  if failed port 3306 then restart
+	if 3 restarts within 3 cycles then alert
