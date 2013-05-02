@@ -7,11 +7,7 @@ Edit the *conf files under /etc/swift dir on each swift node:
 [add the following lines under /etc/swift/account-server.conf, object-server.conf, container-server.conf and proxy-server.conf file]
 
 
-logconfig=/etc/swift/logging.conf
 
-loghandler=account  or object  or proxy or container    
-
-log_custom_handlers  = swift.common.ocp_swift_logger.log
 
 log_statsd_host = <%= storage_local_net_ip %>
 
