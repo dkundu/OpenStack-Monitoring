@@ -1,0 +1,52 @@
+[DEFAULT]
+devices = <%= devices %>
+bind_ip = <%= storage_local_net_ip %>
+bind_port = <%= bind_port %>
+mount_check = <%= mount_check %>
+user = <%= user %>
+#log_facility = LOG_LOCAL2
+#log_level = DEBUG
+logconfig=/etc/swift/logging.conf
+loghandler=container
+log_custom_handlers  = swift.common.ocp_swift_logger.log
+log_statsd_host = <%= storage_local_net_ip %>
+log_statsd_port = 8125
+log_statsd_default_sample_rate = 1
+log_statsd_metric_prefix = <%= hostname %>
+workers = <%= workers %>
+concurrency = <%= concurrency %>
+<% if @allowed_sync_hosts %>
+allowed_sync_hosts = <%= allowed_sync_hosts.to_a.join(',') %>
+<% end %>
+
+[pipeline:main]
+pipeline = <%= pipeline.to_a.join(' ') %>
+
+[app:container-server]
+use = egg:swift#container
+
+[filter:recon]
+use = egg:swift#recon
+recon_cache_path = /var/cache/swift
+
+[filter:healthcheck]
+use = egg:swift#simplehealthcheck
+
+[container-replicator]
+concurrency = <%= replicator_concurrency %>
+
+[container-updater]
+
+[container-auditor]
+
+[container-sync]
+loghandler=container-sync
+<% if @sync_interval %>
+interval = <%= sync_interval %>
+<% end %>
+<% if @sync_container_time %>
+container_time = <%= sync_container_time %>
+<% end %>
+<% if @source %>
+source = <%= source %>
+<% end %>

@@ -1,0 +1,39 @@
+[DEFAULT]
+devices = <%= devices %>
+bind_ip = <%= storage_local_net_ip %>
+bind_port = <%= bind_port %>
+mount_check = <%= mount_check %>
+user = <%= user %>
+#log_facility = LOG_LOCAL2
+#log_level = DEBUG
+logconfig=/etc/swift/logging.conf
+loghandler=object
+log_custom_handlers  = swift.common.ocp_swift_logger.log
+log_statsd_host = <%= storage_local_net_ip %>
+log_statsd_port = 8125
+log_statsd_default_sample_rate = 1
+log_statsd_metric_prefix = <%= hostname %>
+workers = <%= workers %>
+concurrency = <%= concurrency %>
+
+[pipeline:main]
+pipeline = <%= pipeline.to_a.join(' ') %>
+
+[app:object-server]
+use = egg:swift#object
+mb_per_sync = 64
+
+[filter:recon]
+use = egg:swift#recon
+recon_cache_path = /var/cache/swift
+
+[filter:healthcheck]
+use = egg:swift#simplehealthcheck
+
+[object-replicator]
+concurrency = <%= replicator_concurrency %>
+run_pause=120
+
+[object-updater]
+
+[object-auditor]
