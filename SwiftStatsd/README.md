@@ -8,11 +8,17 @@ Edit the *conf files under /etc/swift dir on each swift node:
 
 
 logconfig=/etc/swift/logging.conf
+
 loghandler=account
+
 log_custom_handlers  = swift.common.ocp_swift_logger.log
+
 log_statsd_host = <%= storage_local_net_ip %>
+
 log_statsd_port = 8125
+
 log_statsd_default_sample_rate = 1
+
 log_statsd_metric_prefix = <%= hostname %>
 
 [add the following lines under /etc/swift/object-server.conf file]
