@@ -1,5 +1,5 @@
 Manual steps to enable SwiftStatsD:
-=======================================
+====================================
 
 Edit the *conf files under /etc/swift dir on each swift node:
 
