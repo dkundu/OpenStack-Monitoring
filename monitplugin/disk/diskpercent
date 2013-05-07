@@ -1,0 +1,25 @@
+#!/bin/sh
+
+if [ $# -ne 6 ];
+then
+	echo "Usage : $0 TYPE MOUNT_POINT THRESHOLD SEVERITY CELL_NAME EVENT_CLASS"
+	echo "TYPE = space|inode"
+	exit 0
+fi
+
+TYPE="$1"
+MOUNT_POINT="$2"
+THRESHOLD="$3"
+SEVERITY="$4"
+CELL_NAME="$5"
+EVENT_CLASS="$6"
+HOSTNAME=`hostname`
+PERCENT=''
+
+if [ "$TYPE" = "space" ];then
+	PERCENT=`df "$MOUNT_POINT" | tail -1 | awk '{print $5}'`
+elif [ "$TYPE" = "inode" ];then
+	PERCENT=`df -i "$MOUNT_POINT" | tail -1 | awk '{print $5}'`
+fi
+
+/usr/bin/msend.sh "$SEVERITY" "$CELL_NAME" "$MOUNT_POINT $TYPE usage > ${THRESHOLD}%, current usage is : $PERCENT" "Disk_${TYPE}" "$EVENT_CLASS" "$HOSTNAME" "${TYPE} usage" "$PERCENT" "monit"

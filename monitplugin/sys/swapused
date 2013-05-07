@@ -1,0 +1,16 @@
+#!/bin/sh
+if [ $# -ne 4 ];then
+	echo "Usage : $0 THRESHOLD SEVERITY CELL_NAME EVENT_CLASS"
+	exit 0
+fi
+
+THRESHOLD="$1"
+SEVERITY="$2"
+CELL_NAME="$3"
+EVENT_CLASS="$4"
+HOSTNAME=`hostname`
+USAGE=''
+
+USAGE=`cat /proc/swaps | tail -1 | awk '{print $4/$3*100"%"}'`
+
+/usr/bin/msend.sh "$SEVERITY" "$CELL_NAME" "swap usage > ${THRESHOLD}%, current usage is $USAGE" "swap usage" "$EVENT_CLASS" "$HOSTNAME" "swap usage" "$USAGE" "monit"

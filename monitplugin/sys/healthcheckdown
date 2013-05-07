@@ -1,0 +1,14 @@
+#!/bin/sh
+
+if [ $# -ne 4 ];then
+	echo "Usage : $0 URL SEVERITY CELL_NAME EVENT_CLASS"
+	exit 0
+fi
+
+URL="$1"
+SEVERITY="$2"
+CELL_NAME="$3"
+EVENT_CLASS="$4"
+HOSTNAME=`hostname`
+
+/usr/bin/msend.sh "$SEVERITY" "$CELL_NAME" "Healthcheck failed on URL $URL" "Healthcheck" "$EVENT_CLASS" "$HOSTNAME" "url" "$URL" "monit"

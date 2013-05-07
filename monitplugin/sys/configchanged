@@ -1,0 +1,15 @@
+#!/bin/sh
+
+if [ $# -ne 4 ];then
+	echo "Usage : $0 CONFIG SEVERITY CELL_NAME EVENT_CLASS"
+	exit 0
+fi
+
+CONFIG="$1"
+SEVERITY="$2"
+CELL_NAME="$3"
+EVENT_CLASS="$4"
+HOSTNAME=`hostname`
+
+MTIME="`ls -l $CONFIG | awk '{print $6" "$7" "$8}'`"
+/usr/bin/msend.sh "$SEVERITY" "$CELL_NAME" "config file [$CONFIG] is changed : mtime is $MTIME" "Config" "$EVENT_CLASS" "$HOSTNAME" "mtime of $CONFIG" "$MTIME" "monit"

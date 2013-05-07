@@ -1,0 +1,42 @@
+#!/bin/sh
+
+if [ $# -ne 4 ];then
+	echo "Usage : $0 LOG_FILE SEVERITY CELL_NAME EVENT_CLASS"
+	exit 0
+fi
+
+LOG_FILE="$1"
+SEVERITY="$2"
+CELL_NAME="$3"
+EVENT_CLASS="$4"
+
+HOSTNAME=`hostname`
+
+FILE_NAME="`echo $LOG_FILE | sed 's/\//-/g'`"
+LAST_ERROR_FILE="last$FILE_NAME"
+LAST_ERROR_LOG="/opt/monitplugins/logparser/$LAST_ERROR_FILE"
+
+if [ ! -f "$LOG_FILE" ];then
+	echo "File does not exist : $LOG_FILE"
+fi
+
+CURR_ERROR_MSG="`grep -E -i -w 'error|critical' $LOG_FILE | tail -1`"
+
+if [ -f "$LAST_ERROR_LOG" ];then
+	LAST_ERROR_MSG=`cat $LAST_ERROR_LOG`
+	if [ "$CURR_ERROR_MSG" = "$LAST_ERROR_MSG" ];then
+		echo "Repeated msg"
+		return 0
+	else
+		echo "$CURR_ERROR_MSG" > $LAST_ERROR_LOG
+		echo "$CURR_ERROR_MSG"
+#		return 1
+	fi
+else
+	echo "$CURR_ERROR_MSG" > $LAST_ERROR_LOG
+	echo "$CURR_ERROR_MSG"
+#	return 1
+fi
+
+/usr/bin/msend.sh "$SEVERITY" "$CELL_NAME" "[Error in $LOG_FILE] $CURR_ERROR_MSG" "Log" "$EVENT_CLASS" "$HOSTNAME" "log_file" "$LOG_FILE" "monit"
+

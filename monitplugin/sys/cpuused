@@ -1,0 +1,25 @@
+#!/bin/sh
+
+if [ $# -ne 5 ];then
+	echo "Usag : $0 TYPE THRESHOLD SEVERITY CELL_NAME EVENT_CLASS"
+	echo "TYPE = user|system|iowait"
+	exit 0
+fi
+
+TYPE="$1"
+THRESHOLD="$2"
+SEVERITY="$3"
+CELL_NAME="$4"
+EVENT_CLASS="$5"
+HOSTNAME=`hostname`
+PERCENT=""
+
+if [ "$TYPE" = "user" ];then
+	PERCENT=`mpstat | tail -1 | awk '{print $4"%"}'`
+elif [ "$TYPE" = "system" ];then
+	PERCENT=`mpstat | tail -1 | awk '{print $6"%"}'`
+elif [ "$TYPE" = "iowait" ];then
+	PERCENT=`mpstat | tail -1 | awk '{print $7"%"}'`
+fi
+
+/usr/bin/msend.sh "$SEVERITY" "$CELL_NAME" "cpu($TYPE) > $THRESHOLD% : current value is $PERCENT" "cpu_${TYPE}" "$EVENT_CLASS" "$HOSTNAME" "cpu(${TYPE})" "$PERCENT" "monit"
