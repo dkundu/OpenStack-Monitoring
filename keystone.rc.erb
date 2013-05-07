@@ -1,8 +1,0 @@
-check process keystone-all matching "keystone-all"
-  start program  = "/etc/init.d/keystone start" with timeout 10 seconds
-	stop program = "/etc/init.d/keystone stop"
-	if failed port 5000 then restart
-	if failed port 35357 then restart
-	if failed url http://127.0.0.1:5000/healthcheck and content == "OK"
-		  timeout 3 seconds for 2 cycles then alert
-	if 3 restarts within 3 cycles then alert
