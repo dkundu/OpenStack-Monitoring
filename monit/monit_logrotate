@@ -1,8 +1,0 @@
-/var/log/monit.log {
-    rotate 5
-    weekly
-    compress
-    missingok
-    copytruncate
-    notifempty
-}
