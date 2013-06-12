@@ -23,42 +23,60 @@ class monit::monit($server_types=['',],
 ){
 	package { 'monit':
         ensure => present,
-        before => Package['monitplugins'],
+        #before => Package['monitplugins'],
     }
-	package { 'monitplugins':
-        ensure => present,
-        before => File['/opt/monit/etc/'],
-	}
-	file { '/opt/monit':
+	#package { 'monitplugins':
+        #ensure => present,
+        #before => File['/etc/monit/'],
+	#}
+	#file { '/opt/monit':
+        #notify => Service['monit'], 
+        #ensure => directory,
+        #mode => 0644,
+        #before => File["/etc/monit/"],
+	#}
+
+	file { '/etc/monit/':
+        notify => Service['monit'],
+        ensure => directory,
+        mode => 0644,
+        }
+
+	file { '/etc/monit/plugins':
         notify => Service['monit'], 
         ensure => directory,
         mode => 0644,
-        before => File["/opt/monit/etc/"],
 	}
-	file { '/opt/monit/etc/':
-        notify => Service['monit'], 
-        ensure => directory,
-        mode => 0644,
-	}
+
 	file { 'monitrc':
         notify => Service['monit'], 
-        path => "/opt/monit/etc/monitrc",
+        path => "/etc/monit/monitrc",
         ensure => file,
         content => template("monit/monitrc.erb"),
 	}
-	file { '/opt/monit/etc/conf.d': 
+
+	file { '/etc/monit/conf.d': 
         ensure => directory,
         mode => 0644,
 	}
-    file { '/etc/logrotate.d/monit':
+
+        file { '/etc/logrotate.d/monit':
         ensure => 'present',
         source => 'puppet:///modules/monit/monit_logrotate',
         owner => 'root',
         group => 'root',
         mode => 644,
         require => [Package['monit']],
-    }
+        }
 	
+        file { '/etc/monit/plugins/latestrrmsg':
+        ensure => 'present',
+        source => 'puppet:///modules/monit/latestrrmsg',
+        owner => 'root',
+        group => 'root',
+        mode => 755,
+        }
+
 	monit::rcfile { $server_types: }
 	
 	service { 'monit':
@@ -67,4 +85,38 @@ class monit::monit($server_types=['',],
         hasrestart => true,
         hasstatus  => true,
     }
+
+        file { '/usr/local/mon2nagios':
+        ensure => directory,
+        mode => 0644,
+       }
+
+       file { 'notifier':
+        path => "/usr/local/mon2nagios/notifier",
+        ensure => file,
+        content => template("monit/notifier.erb"),
+	mode => 0755
+        }
+
+       file { 'mon2nagios_conf':
+        path => "/usr/local/mon2nagios/mon2nagios.conf",
+        ensure => file,
+        content => template("monit/mon2nagios_conf.erb"),
+        }
+
+       file { 'trap2nagios':
+        path => "/usr/local/mon2nagios/trap2nagios",
+        ensure => file,
+        content => template("monit/trap2nagios.erb"),
+	mode => 0755
+        }
+
+       file { '/usr/lib/python2.7/dist-packages/keystone/middleware/healthcheck.py':
+        ensure => 'present',
+        source => 'puppet:///modules/monit/healthcheck.py',
+	owner => 'root',
+        group => 'root',
+        mode => 644,
+        }
+
 }
